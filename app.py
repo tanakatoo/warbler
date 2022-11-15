@@ -316,8 +316,6 @@ def homepage():
 
     if g.user:
         # get the id of users the logged in user is following
-        print("*****************")
-        print([u.id for u in g.user.following])
         following=[u.id for u in g.user.following]
         messages = (Message
                     .query

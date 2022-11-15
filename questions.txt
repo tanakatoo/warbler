@@ -1,0 +1,15 @@
+Note that the follows table has an unusual arrangement: it has two foreign keys to the same table. Why?
+It's got 2 foreign keys because the pair of them represent the primary key. It links one user to another user.
+
+How is the logged in user being kept track of?
+Before every request, it checks to see if the session has a user, if it does, then it will get the user from the db to use  
+
+What is Flask’s g object?
+It is global namespace to hold data for one single request. It is accessible by the route and other functions during this request
+so we won't need to pass around this information.
+
+What is the purpose of add_user_to_g?
+It makes the current user available for access during the request. 
+
+What does @app.before_request mean?
+It means the function will run before every request.
