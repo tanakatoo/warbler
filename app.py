@@ -217,8 +217,25 @@ def profile():
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-    form=UserEditForm()
-    return render_template('users/edit.html', form=form)
+    
+    form=UserEditForm(obj=g.user)
+    if form.validate_on_submit():
+        res=User.authenticate(g.user.username,form.password.data)
+        if res:
+            g.user.username=form.username.data
+            g.user.email=form.email.data
+            g.user.image_url=form.image_url.data or g.user.image_url.default.arg
+            g.user.header_image_url=form.header_image_url.data or g.user.header_image_url.default.arg
+            g.user.bio=form.bio.data
+            db.session.add(g.user)
+            db.session.commit()
+            flash("Profile updated!", "success")
+            return redirect(f'/users/{g.user.id}')
+        else:
+            flash("Password not correct. Please input correct password to save profile.","danger")
+            return render_template('users/edit.html', form=form)
+    else:
+        return render_template('users/edit.html', form=form)
 
 
 @app.route('/users/delete', methods=["POST"])
@@ -230,7 +247,6 @@ def delete_user():
         return redirect("/")
 
     do_logout()
-
     db.session.delete(g.user)
     db.session.commit()
 
