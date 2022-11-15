@@ -143,9 +143,7 @@ def users_show(user_id):
     """Show user profile."""
 
     user = User.query.get_or_404(user_id)
-    print('***************')
-    print(user)
-    print(len(user.likes))
+
     # snagging messages in order from the database;
     # user.messages won't be in order by default
     messages = (Message
@@ -156,6 +154,14 @@ def users_show(user_id):
                 .all())
     return render_template('users/show.html', user=user, messages=messages, likes_count=len(user.likes))
 
+@app.route('/users/likes')
+def users_likes():
+    """Display all the messages that the user liked"""
+
+    m_id=[l.id for l in g.user.likes]
+    
+    m=Message.query.filter(Message.id.in_(m_id)).all()
+    return render_template('messages/liked.html',messages=m)
 
 @app.route('/users/<int:user_id>/following')
 def show_following(user_id):
@@ -254,7 +260,11 @@ def like_warble(message_id):
         like=Likes(user_id=g.user.id, message_id=message_id)
         db.session.add(like)
         db.session.commit()
-    return redirect('/') 
+    
+    if request.referrer.find('/users/likes'):
+        return redirect('/users/likes')
+    else:
+        return redirect('/') 
 
 @app.route('/users/delete', methods=["POST"])
 def delete_user():
