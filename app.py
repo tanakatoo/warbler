@@ -5,7 +5,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
 from forms import UserAddForm, LoginForm, MessageForm,UserEditForm
-from models import db, connect_db, User, Message
+from models import db, connect_db, User, Message, Likes
 
 CURR_USER_KEY = "curr_user"
 
@@ -143,7 +143,9 @@ def users_show(user_id):
     """Show user profile."""
 
     user = User.query.get_or_404(user_id)
-
+    print('***************')
+    print(user)
+    print(len(user.likes))
     # snagging messages in order from the database;
     # user.messages won't be in order by default
     messages = (Message
@@ -152,7 +154,7 @@ def users_show(user_id):
                 .order_by(Message.timestamp.desc())
                 .limit(100)
                 .all())
-    return render_template('users/show.html', user=user, messages=messages)
+    return render_template('users/show.html', user=user, messages=messages, likes_count=len(user.likes))
 
 
 @app.route('/users/<int:user_id>/following')
@@ -237,6 +239,22 @@ def profile():
     else:
         return render_template('users/edit.html', form=form)
 
+@app.route('/users/add_like/<int:message_id>', methods=["POST"])
+def like_warble(message_id):
+    """Liking and unliking a warble"""
+    # determine if they are liking or unliking
+    l=Likes.query.filter(Likes.user_id==g.user.id, Likes.message_id==message_id).first()
+    if l:
+        # already liked, so we have to unlike
+        # remove the like
+        db.session.delete(l)
+        db.session.commit()
+    else:
+        # not yet liked so we like it
+        like=Likes(user_id=g.user.id, message_id=message_id)
+        db.session.add(like)
+        db.session.commit()
+    return redirect('/') 
 
 @app.route('/users/delete', methods=["POST"])
 def delete_user():
@@ -324,7 +342,9 @@ def homepage():
                     .limit(100)
                     .all())
 
-        return render_template('home.html', messages=messages)
+        like_ids=[l.id for l in g.user.likes]
+
+        return render_template('home.html', messages=messages, likes=like_ids)
 
     else:
         return render_template('home-anon.html')
