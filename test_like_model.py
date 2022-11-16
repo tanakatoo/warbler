@@ -1,14 +1,14 @@
-"""Message model tests."""
+"""Like model tests."""
 
 # run these tests like:
 #
-#    python -m unittest test_message_model.py
+#    python -m unittest test_like_model.py
 
 
 import os
 from unittest import TestCase
 
-from models import db, User, Message, Follows
+from models import db, User, Message, Follows, Likes
 from flask_bcrypt import Bcrypt
 
 
@@ -31,7 +31,7 @@ from app import app
 db.create_all()
 
 
-class MessageModelTestCase(TestCase):
+class LikeModelTestCase(TestCase):
     """Test views for messages."""
 
     def setUp(self):
@@ -43,7 +43,7 @@ class MessageModelTestCase(TestCase):
 
         self.client = app.test_client()
 
-    def test_message_model(self):
+    def test_like_model(self):
         """Does basic model work?"""
 
         u = User(
@@ -54,10 +54,22 @@ class MessageModelTestCase(TestCase):
 
         db.session.add(u)
         db.session.commit()
+        
+        u2 = User(
+            email="test2@test.com",
+            username="testuser2",
+            password="HASHED_PASSWORD2"
+        )
 
-        m=Message(text='hello',user_id=u.id)
+        db.session.add(u2)
+        db.session.commit()
+
+        m=Message(text='hello',user_id=u2.id)
         db.session.add(m)
         db.session.commit()
+        
+        l=Likes(user_id=u.id,message_id=m.id)
         # User should have no messages & no followers
-        self.assertEqual(len(u.messages), 1)
-        self.assertEqual(m.user, u)
+        db.session.add(l)
+        db.session.commit()
+        self.assertEqual(len(u.likes), 1)

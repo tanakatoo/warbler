@@ -44,7 +44,37 @@ class UserViewsTestCase(TestCase):
     
     def test_user_create_fail(self):
         """Does User.create fail to create a new user if any of the validations (e.g. uniqueness, non-nullable fields) fail? """
-        self.client.post('/signup',data={'username':"test",
+        # password too short
+        res=self.client.post('/signup',data={'username':"test",
                     'email':"test@email.com",
                     'password':"asdf",
                     'image_url':User.image_url.default.arg})
+        html=res.get_data(as_text=True)
+        self.assertEqual(res.status_code,200)
+        self.assertIn("Sign me up!",html)
+        
+        # username taken
+        res=self.client.post('/signup',data={'username':"test",
+                    'email':"test@email.com",
+                    'password':"asdf",
+                    'image_url':User.image_url.default.arg})
+        html=res.get_data(as_text=True)
+
+        self.assertIn("Sign me up!",html)
+        
+         # no email taken
+        res=self.client.post('/signup',data={'username':"test",
+                    'password':"asdf",
+                    'image_url':User.image_url.default.arg})
+        html=res.get_data(as_text=True)
+
+        self.assertIn("Sign me up!",html)
+        
+    def test_user_create_success(self):
+        res=self.client.post('/signup',data={'username':"test22",
+                    'email':"test22@email.com",
+                    'password':"asdfasdf",
+                    'image_url':User.image_url.default.arg})
+        html=res.get_data(as_text=True)
+        self.assertEqual(res.status_code,200)
+        self.assertIn("@test22",html)

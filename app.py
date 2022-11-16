@@ -78,7 +78,7 @@ def signup():
             db.session.commit()
 
         except IntegrityError:
-            flash("Username already taken", 'danger')
+            flash("Username already taken or email is registered", 'danger')
             return render_template('users/signup.html', form=form)
 
         do_login(user)
