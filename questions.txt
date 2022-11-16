@@ -13,3 +13,11 @@ It makes the current user available for access during the request.
 
 What does @app.before_request mean?
 It means the function will run before every request.
+
+*******************
+my questions
+For the test files, why do we always need to delete like this:
+ User.query.delete()
+        Message.query.delete()
+        Follows.query.delete()
+
