@@ -44,6 +44,9 @@ class UserViewsTestCase(TestCase):
         db.create_all()
 
         self.client = app.test_client()
+        
+    def tearDown(self):
+        db.session.rollback()
     
     def test_user_create_fail(self):
         """Does User.create fail to create a new user if any of the validations (e.g. uniqueness, non-nullable fields) fail? """
@@ -107,7 +110,7 @@ class UserViewsTestCase(TestCase):
         html=res.get_data(as_text=True)
         self.assertEqual(res.status_code,200)
         self.assertIn("Hello, test!", html)
-        self.assertEqual(session['CURR_USER'],)
+        self.assertEqual(session['curr_user'],)
         
     def test_user_login_error_username(self):
         # signup first

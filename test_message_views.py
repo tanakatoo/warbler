@@ -51,6 +51,9 @@ class MessageViewTestCase(TestCase):
 
         db.session.commit()
 
+    def tearDown(self):
+        db.session.rollback()
+
     def test_add_message(self):
         """Can use add a message?"""
 
@@ -100,19 +103,9 @@ class MessageViewTestCase(TestCase):
         self.assertNotIn("testing message",html)
         
     def test_delete_message_error(self):
-        """Can we display a message?"""
-
-        with self.client as c:
-            with c.session_transaction() as sess:
-                sess[CURR_USER_KEY] = self.testuser.id
-                
-        authorizedUser = User.signup(username="authorizedUser",
-                                    email="test2@test.com",
-                                    password="testuser2",
-                                    image_url=None)
-        db.session.commit()
+        """Can we display a message?"""                
         
-        message=Message(user_id=authorizedUser.id,text="testing message")
+        message=Message(user_id=self.testuser.id,text="testing message")
         db.session.add(message)
         db.session.commit()
         

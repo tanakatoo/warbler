@@ -44,6 +44,9 @@ class UserModelTestCase(TestCase):
 
         self.client = app.test_client()
 
+    def tearDown(self):
+        db.session.rollback()
+
     def test_user_model(self):
         """Does basic model work?"""
 
