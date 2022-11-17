@@ -17,7 +17,12 @@ It means the function will run before every request.
 *******************
 my questions
 For the test files, why do we always need to delete like this:
- User.query.delete()
+        User.query.delete()
         Message.query.delete()
         Follows.query.delete()
+
+        How do we get the id data if we don't hardcode it?
+
+test_user_edit_profile, don't know how to pass in form data: right now,
+password is not working.
 

@@ -71,3 +71,54 @@ class MessageViewTestCase(TestCase):
 
             msg = Message.query.one()
             self.assertEqual(msg.text, "Hello")
+    
+    def test_show_message(self):
+        """Can we display a message?"""
+
+        message=Message(user_id=self.testuser.id,text="testing message")
+        db.session.add(message)
+        db.session.commit()
+        res=self.client.get(f'/messages/{message.id}')
+        html=res.get_data(as_text=True)
+        
+        self.assertEqual(res.status_code,200)
+        self.assertIn("testing message",html)
+    
+    def test_delete_message(self):
+        """Can we display a message?"""
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+        message=Message(user_id=self.testuser.id,text="testing message")
+        db.session.add(message)
+        db.session.commit()
+        res=self.client.post(f'/messages/{message.id}/delete', follow_redirects=True)
+        html=res.get_data(as_text=True)
+        
+        self.assertEqual(res.status_code,200)
+        self.assertNotIn("testing message",html)
+        
+    def test_delete_message_error(self):
+        """Can we display a message?"""
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+                
+        authorizedUser = User.signup(username="authorizedUser",
+                                    email="test2@test.com",
+                                    password="testuser2",
+                                    image_url=None)
+        db.session.commit()
+        
+        message=Message(user_id=authorizedUser.id,text="testing message")
+        db.session.add(message)
+        db.session.commit()
+        
+        
+        res=self.client.post(f'/messages/{message.id}/delete', follow_redirects=True)
+        html=res.get_data(as_text=True)
+        
+        self.assertEqual(res.status_code,200)
+        self.assertIn("Access unauthorized.",html)
