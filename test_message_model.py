@@ -43,8 +43,7 @@ class MessageModelTestCase(TestCase):
 
         self.client = app.test_client()
 
-    def tearDown(self):
-        db.session.rollback()
+    
 
     def test_message_model(self):
         """Does basic model work?"""

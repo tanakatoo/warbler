@@ -110,7 +110,9 @@ class UserViewsTestCase(TestCase):
         html=res.get_data(as_text=True)
         self.assertEqual(res.status_code,200)
         self.assertIn("Hello, test!", html)
-        self.assertEqual(session['curr_user'],)
+        with self.client as c:
+            with c.session_transaction() as sess:
+                self.assertEqual(sess['curr_user'],1)
         
     def test_user_login_error_username(self):
         # signup first
@@ -277,7 +279,18 @@ class UserViewsTestCase(TestCase):
         
         self.assertNotIn('test',html)
     
-    def test_user_edit_profile(self):
+    def test_user_edit_profile_fail(self):
+        res=self.client.post('/signup',data={'username':"test",
+                    'email':"test@email.com",
+                    'password':"asdfasdf",
+                    'image_url':User.image_url.default.arg}, follow_redirects=True)
+        u=User.query.get(1)
+        res=self.client.post('/users/profile', data={'g.user':u,'form.password.data':'asdfasdf',"form.username.data":"test2"},follow_redirects=True)
+        html=res.get_data(as_text=True)
+        
+        self.assertIn('Password not correct',html)
+    
+    def test_user_edit_profile_success(self):
         res=self.client.post('/signup',data={'username':"test",
                     'email':"test@email.com",
                     'password':"asdfasdf",

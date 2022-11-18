@@ -23,6 +23,8 @@ For the test files, why do we always need to delete like this:
 
         How do we get the id data if we don't hardcode it?
 
-test_user_edit_profile, don't know how to pass in form data: right now,
+test_user_edit_profile_success, don't know how to pass in form data: right now,
 password is not working.
+
+test_user_login, how to get the session data?
 
